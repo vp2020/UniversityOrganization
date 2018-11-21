@@ -77,10 +77,11 @@ ORG.results = (function () {
                                     </tr>
                                 </thead>`;
                     $("row", data).each(function () {
-                        var nameTabs = "" + $("type", this).text();
+                        let nameTabs = "" + $("type", this).text();
+                        let orgId = $('OrganizationID', this).text();
                         output += `<tr>
                                        <td>` + $("type", this).text() + `</td>
-                                       <td><a href="javascript:getTabs(` + $('OrganizationID', this).text() + `)">` + $("Name", this).text() + `</a></td>
+                                       <td><a href="javascript:ORG.mainTabs.getTabs(` + $('OrganizationID', this).text() + `)">` + $("Name", this).text() + `</a></td>
                                        <td>` + $("city", this).text() + `</td>
                                        <td>` + $("zip", this).text() + `</td>
                                        <td>` + $("CountyName", this).text() + `</td>
