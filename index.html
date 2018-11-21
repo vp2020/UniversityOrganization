@@ -7,161 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>RESTful API Client</title>
 
-
     <link rel="stylesheet" href="tablesorter/themes/theme.black-ice.css">
     <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
     <script type="text/javascript" src="tablesorter/jquery.tablesorter.min.js"></script>
-    <script type="text/javascript">
-        //now what?
-        /*if they enter an orgId (we will get it next class through a search), we need to find:
-            -What different areas of information the organization has (/Application/Tabs?orgId=x)
-            -then, find each area on demand (each will need it's own call)
-                General
-                    Path: ...ESD/{orgId}/General
-                Locations
-                    Path: ...ESD/{orgId}/Locations
-                Treatment
-                    Path: ...ESD/{orgId}/Treatments
-                Training
-                    Path: ...ESD/{orgId}/Training
-                Facilities
-                    Path: ...ESD/{orgId}/Facilities
-                Equipment
-                    Path: ...ESD/{orgId}/Equipment
-                Physicians
-                    Path: ...ESD/{orgId}/Physicians
-                People
-                    Path: ...ESD/{orgId}/People
-        */
-
-        var url = "https://people.rit.edu/dmgics/754/23/proxy.php";
-
-        function getOrgTypes() {
-            $.ajax({
-                type: "GET",
-                url: url,
-                data: "path=" + encodeURI("/OrgTypes"),
-                dataType: "xml",
-                success: function (data) {
-                    console.log(data);
-                    var orgOpts = "";
-
-                    orgOpts += "<option value=''>All Organization Types</option>";
-                    $("row", data).each(function () {
-                        orgOpts += "<option value='"+$("type", this).text()+"'>" + $("type", this).text() + "</option>";
-                    });
-
-                    $("#orgType").html(orgOpts);
-
-                }
-            });
-        }
-
-        function getStates() {
-            $.ajax({
-                type: "GET",
-                url: url,
-                data: "path=" + encodeURI("/States"),
-                dataType: "xml",
-                success: function (data) {
-
-                    console.log(data);
-                    var stateOpts = "";
-
-                    stateOpts += "<option value=''>States</option>";
-                    $("row", data).each(function () {
-                        stateOpts += "<option value='"+$("State", this).text()+"'>" + $("State", this).text() + "</option>";
-                    });
-
-                    $("#state").html(stateOpts);
-                }
-            });
-
-        }
-
-        function getCities(stateName) {
-            let pathName = "/Cities/?state=" + stateName;
-            $.ajax({
-                type: "GET",
-                url: url,
-                data: "path=" + encodeURI(pathName),
-                dataType: "xml",
-                success: function (data) {
-                    var cityOpts = "";
-                    cityOpts += "<option value=''>Cities</option>";
-                    $("row", data).each(function () {
-                        cityOpts += "<option value='"+$("city", this).text()+"'>" + $("city", this).text() + "</option>";
-                    });
-                    $("#city").html(cityOpts);
-                }
-            });
-        }
-        $(function () {
-            $("#state").on("change", function () {
-                var selectedText = $(this).find("option:selected").text();
-                getCities(selectedText);
-            });
-        });
-
-
-
-
-        function showResults() {
-            console.log($('#search-form').serialize());
-            $.ajax({
-                url : url,
-                data: {path:"/Organizations?" + $('#search-form').serialize()},
-                success: function (data) {
-                    console.log(data);
-                    var output = "";
-                    $("#tableOutput").html(" ");
-
-                    // you should test for error first
-
-                    if ($(data).find("row").length === 0) {
-                        output += "No matches found";
-                    } else {
-                        // string template literal
-                        output += `<table id="results-table" class="tablesorter tablesorter-blackice">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Name</th>
-                                        <th>City</th>
-                                        <th>Zip</th>
-                                        <th>County</th>
-                                        <th>State</th>
-                                    </tr>
-                                </thead>`;
-
-                        $("row", data).each(function () {
-                            output += `<tr>
-                                       <td>` +  $("type", this).text() + `</td>
-                                       <td><a href="">` + $("Name", this).text() +  `</a></td>
-                                       <td>` + $("city", this).text() + `</td>
-                                       <td>` +$("zip", this).text() + `</td>
-                                       <td>` +$("CountyName", this).text() + `</td>
-                                       <td>` + $("State", this).text() + `</td>
-                                  </tr>`;
-                        });
-
-                        output += "</table>";
-                        $("#tableOutput").html(output);
-                    }
-                }
-            });
-        }
-
-
-
-        $(function () {
-            getOrgTypes();
-            getStates();
-        });
-    </script>
     <script type="text/javascript" src="tablesorter/jquery.tablesorter.min.js"></script>
-
-
+    <script type="text/javascript" src="js/organization.js"></script>
+    <script type="text/javascript" src="js/states.js"></script>
+    <script type="text/javascript" src="js/cities.js"></script>
+    <script type="text/javascript" src="js/results.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
 </head>
 <body>
 <h2>Search Criteria</h2>Input org Id:
@@ -189,11 +43,14 @@
         <p>ZIP Code <input id="zip" type="text" name="zip"></p>
 
         <div style="margin:0 0 0 210px">
-            <input value="Show Results" onclick="showResults()" id="btnSearch" class="button" type="button"> <input
+            <input value="Show Results" onclick="ORG.results.getResult()" id="btnSearch" class="button" type="button"> <input
                 type="reset" class="button" value="Reset Form" onclick="">
         </div>
     </fieldset>
 </form>
-<div id="tableOutput"></div>
+<div id="tableOutput" style="overflow: scroll; height: 200px"></div>
+<div id="tabs"></div>
+
+
 </body>
 </html>
